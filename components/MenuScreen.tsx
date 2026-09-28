@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Plus, FolderOpen, Info, Sparkles, Wand2, ArrowRight, X, Settings } from 'lucide-react';
 import { ProjectState } from '../types';
+import { AkornMascot } from './AkornMascot';
 
 interface MenuScreenProps {
   mascotUrl: string | null;
@@ -30,7 +31,9 @@ const MenuScreen: React.FC<MenuScreenProps> = ({ mascotUrl, directorIconUrl, onN
             {directorIconUrl ? (
               <img src={directorIconUrl} className="w-32 h-32 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] mb-6 mx-auto md:mx-0 border-4 border-white/10 object-cover" />
             ) : (
-              <div className="w-16 h-16 bg-red-600 rounded-2xl mb-4 mx-auto md:mx-0" />
+              <div className="w-32 h-32 bg-amber-950/40 rounded-3xl mb-6 mx-auto md:mx-0 border-4 border-amber-500/20 shadow-[0_20px_50px_rgba(234,88,12,0.3)] flex items-center justify-center overflow-hidden">
+                <AkornMascot size={110} pose="director" />
+              </div>
             )}
             <h1 className="text-7xl font-black italic text-white leading-tight tracking-tighter drop-shadow-lg">
               OL!<span className="text-red-600">AVE</span>

@@ -119,14 +119,14 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ onBack }) => {
               <p>The <span className="text-white font-bold">AyaScript language</span> is optimized for GPU-bound visual transformations. It allows for direct manipulation of frame buffers and audio streams through high-level effect blocks.</p>
               <div className="bg-black/60 p-6 rounded-[2rem] font-mono text-[10px] text-blue-300 border border-white/5 shadow-inner">
                 <span className="text-slate-600 italic">// Define a custom cinematic post-process</span><br/>
-                <span className="text-red-400">effect</span> "CyberVibe" {<br/>}
-                &nbsp;&nbsp;<span className="text-purple-400">layer</span> "Shadows" {<br/>}
+                <span className="text-red-400">effect</span> "CyberVibe" {"{"}<br/>
+                &nbsp;&nbsp;<span className="text-purple-400">layer</span> "Shadows" {"{"}<br/>
                 &nbsp;&nbsp;&nbsp;&nbsp;<span className="text-emerald-400">tint</span>(#000033);<br/>
                 &nbsp;&nbsp;&nbsp;&nbsp;<span className="text-emerald-400">contrast</span>(1.4);<br/>
-                &nbsp;&nbsp;}<br/>
+                &nbsp;&nbsp;{"}"}<br/>
                 &nbsp;&nbsp;<span className="text-purple-400">glitch</span>(intensity: 0.2, frequency: 0.5);<br/>
                 &nbsp;&nbsp;<span className="text-purple-400">bloom</span>(radius: 12, strength: 0.8);<br/>
-                }
+                {"}"}
               </div>
               <div className="flex items-center gap-2 p-4 bg-white/5 rounded-2xl">
                 <AlertCircle size={14} className="text-slate-500" />

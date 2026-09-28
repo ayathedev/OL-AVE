@@ -5,45 +5,83 @@ export class AyaEyeService {
   private ai: GoogleGenAI;
 
   constructor() {
-    this.ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    this.ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
   }
 
   async generateMascot() {
     try {
-      const prompt = "High-quality anime style cute cartoon cat-squirrel hybrid mascot character with a big fluffy tail, energetically playing a rock guitar where the neck is a sharp pirate cutlass sword, epic pose, vibrant colors, cinematic lighting, stylized background, high resolution.";
-      const response = await this.ai.models.generateContent({
-        model: 'gemini-2.5-flash-image',
-        contents: { parts: [{ text: prompt }] },
-      });
+      const prompt = "High-quality 3D cute cartoon cat-squirrel hybrid mascot named Akorn with a big fluffy tail, street style with silver chain and wristbands, energetic rock pose, vibrant colors, cinematic lighting, stylized background, high resolution.";
+      
+      // Try Imagen model first
+      try {
+        const imgResponse = await this.ai.models.generateImages({
+          model: 'imagen-3.0-generate-002',
+          prompt,
+          config: {
+            numberOfImages: 1,
+            outputMimeType: 'image/jpeg',
+          },
+        });
+        const imgBytes = imgResponse?.generatedImages?.[0]?.image?.imageBytes;
+        if (imgBytes) {
+          return `data:image/jpeg;base64,${imgBytes}`;
+        }
+      } catch {
+        // Fallback to generateContent if supported
+        const response = await this.ai.models.generateContent({
+          model: 'gemini-2.5-flash',
+          contents: { parts: [{ text: prompt }] },
+        });
 
-      for (const part of response.candidates[0].content.parts) {
-        if (part.inlineData) {
-          return `data:image/png;base64,${part.inlineData.data}`;
+        if (response?.candidates?.[0]?.content?.parts) {
+          for (const part of response.candidates[0].content.parts) {
+            if (part.inlineData) {
+              return `data:image/png;base64,${part.inlineData.data}`;
+            }
+          }
         }
       }
       return null;
     } catch (error) {
-      console.error("AyaEye Splash Generation Error:", error);
+      console.warn("AyaEye Splash Generation Error:", error);
       return null;
     }
   }
 
   async generateDirectorMascot() {
     try {
-      const prompt = "Cute anime cat-squirrel hybrid cartoon mascot character sitting comfortably in a wooden director's chair, holding a megaphone, wearing a small film director's hat, big expressive eyes, fluffy tail, vibrant colors, studio background, high quality character art, isolated on clean background.";
-      const response = await this.ai.models.generateContent({
-        model: 'gemini-2.5-flash-image',
-        contents: { parts: [{ text: prompt }] },
-      });
+      const prompt = "Cute 3D animated cat-squirrel hybrid cartoon mascot character named Akorn sitting comfortably in a director's chair with a megaphone, wearing sunglasses and cool chain necklace, fluffy squirrel tail, cat ears, high quality 3d character render, isolated on clean dark background.";
+      
+      try {
+        const imgResponse = await this.ai.models.generateImages({
+          model: 'imagen-3.0-generate-002',
+          prompt,
+          config: {
+            numberOfImages: 1,
+            outputMimeType: 'image/jpeg',
+          },
+        });
+        const imgBytes = imgResponse?.generatedImages?.[0]?.image?.imageBytes;
+        if (imgBytes) {
+          return `data:image/jpeg;base64,${imgBytes}`;
+        }
+      } catch {
+        const response = await this.ai.models.generateContent({
+          model: 'gemini-2.5-flash',
+          contents: { parts: [{ text: prompt }] },
+        });
 
-      for (const part of response.candidates[0].content.parts) {
-        if (part.inlineData) {
-          return `data:image/png;base64,${part.inlineData.data}`;
+        if (response?.candidates?.[0]?.content?.parts) {
+          for (const part of response.candidates[0].content.parts) {
+            if (part.inlineData) {
+              return `data:image/png;base64,${part.inlineData.data}`;
+            }
+          }
         }
       }
       return null;
     } catch (error) {
-      console.error("AyaEye Icon Generation Error:", error);
+      console.warn("AyaEye Icon Generation Error:", error);
       return null;
     }
   }
@@ -51,7 +89,7 @@ export class AyaEyeService {
   async generateSmartCaptions(base64Image: string) {
     try {
       const response = await this.ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
+        model: 'gemini-2.5-flash',
         contents: [
           {
             parts: [
@@ -78,7 +116,7 @@ export class AyaEyeService {
   async describeScene(base64Image: string) {
      try {
       const response = await this.ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
+        model: 'gemini-2.5-flash',
         contents: [
           {
             parts: [
@@ -122,7 +160,7 @@ export class AyaEyeService {
   async analyzeBackground(base64Image: string) {
     try {
       const response = await this.ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
+        model: 'gemini-2.5-flash',
         contents: [
           {
             parts: [
@@ -162,7 +200,7 @@ export class AyaEyeService {
   async locateSubject(base64Image: string, description: string = "main moving subject") {
     try {
       const response = await this.ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
+        model: 'gemini-2.5-flash',
         contents: [
           {
             parts: [

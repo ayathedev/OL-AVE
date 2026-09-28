@@ -10,6 +10,7 @@ import {
   Music, ArrowLeft, Play, Pause, Square, CameraIcon, Type, Film
 } from 'lucide-react';
 import { gemini } from './services/geminiService';
+import { AkornMascot } from './components/AkornMascot';
 
 const MAX_HISTORY = 50;
 const AUTO_SAVE_INTERVAL = 120000;
@@ -44,16 +45,24 @@ const App: React.FC = () => {
   const currentTimeRef = useRef(0);
 
   useEffect(() => {
+    let timer: any;
     const initApp = async () => {
-      const [splashUrl, iconUrl] = await Promise.all([
-        gemini.generateMascot(),
-        gemini.generateDirectorMascot()
-      ]);
-      if (splashUrl) setMascotUrl(splashUrl);
-      if (iconUrl) setDirectorIconUrl(iconUrl);
-      setTimeout(() => setView('menu'), 4500);
+      try {
+        const [splashUrl, iconUrl] = await Promise.all([
+          gemini.generateMascot(),
+          gemini.generateDirectorMascot()
+        ]);
+        if (splashUrl) setMascotUrl(splashUrl);
+        if (iconUrl) setDirectorIconUrl(iconUrl);
+      } catch (err) {
+        console.warn("Init mascot fetch warning:", err);
+      }
     };
     initApp();
+    timer = setTimeout(() => {
+      setView(v => (v === 'splash' ? 'menu' : v));
+    }, 3500);
+    return () => clearTimeout(timer);
   }, []);
 
   // Sync internal ref with project time for the drawing loop
@@ -363,12 +372,31 @@ const App: React.FC = () => {
 
   if (view === 'splash') {
     return (
-      <div className="h-screen w-screen bg-slate-950 flex flex-col items-center justify-center overflow-hidden relative">
-        {mascotUrl && <div className="absolute inset-0 opacity-40 blur-sm scale-110" style={{ backgroundImage: `url(${mascotUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />}
+      <div 
+        onClick={() => setView('menu')}
+        className="h-screen w-screen bg-slate-950 flex flex-col items-center justify-center overflow-hidden relative cursor-pointer group"
+      >
+        {mascotUrl && (
+          <div className="absolute inset-0 opacity-40 blur-sm scale-110" style={{ backgroundImage: `url(${mascotUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
+        )}
         <div className="relative z-10 flex flex-col items-center animate-in zoom-in-95 duration-700">
-           {directorIconUrl ? <img src={directorIconUrl} className="w-40 h-40 rounded-[2.5rem] mb-10 shadow-[0_25px_60px_rgba(0,0,0,0.6)] border-4 border-white/10" /> : <div className="mb-8 w-24 h-24 bg-red-600 rounded-3xl" />}
-           <h1 className="text-8xl font-black italic text-white drop-shadow-[0_0_30px_rgba(255,255,255,0.3)] tracking-tighter mb-4">OL!<span className="text-red-600">AVE</span></h1>
+           {directorIconUrl ? (
+             <img src={directorIconUrl} className="w-40 h-40 rounded-[2.5rem] mb-8 shadow-[0_25px_60px_rgba(0,0,0,0.6)] border-4 border-white/10 object-cover" />
+           ) : (
+             <div className="mb-8 w-44 h-44 rounded-[2.5rem] bg-gradient-to-br from-amber-600/30 to-red-950/80 border-4 border-amber-500/20 shadow-[0_25px_60px_rgba(234,88,12,0.35)] flex items-center justify-center backdrop-blur-xl">
+               <AkornMascot size={150} pose="director" />
+             </div>
+           )}
+           <h1 className="text-8xl font-black italic text-white drop-shadow-[0_0_30px_rgba(255,255,255,0.3)] tracking-tighter mb-3">OL!<span className="text-red-600">AVE</span></h1>
+           <div className="flex items-center gap-2 mb-3">
+             <span className="text-xs px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 font-bold uppercase tracking-widest border border-amber-500/30">
+               Studio Mascot: Akorn
+             </span>
+           </div>
            <p className="text-sm font-mono uppercase tracking-[0.2em] text-slate-400 opacity-60">Meow Motherfucking Meow</p>
+           <span className="text-[10px] text-slate-500 font-mono tracking-widest uppercase mt-8 opacity-40 group-hover:opacity-100 transition-opacity">
+             Click anywhere to enter &rarr;
+           </span>
         </div>
       </div>
     );
@@ -382,7 +410,13 @@ const App: React.FC = () => {
       <header className="h-14 bg-slate-900/90 backdrop-blur-xl border-b border-slate-800 px-6 flex items-center justify-between z-[100]">
         <div className="flex items-center gap-5">
           <button onClick={() => setView('menu')} className="p-2 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition-all mr-2"><ArrowLeft size={18} /></button>
-          {directorIconUrl ? <img src={directorIconUrl} className="w-10 h-10 rounded-xl shadow-lg border border-white/10 object-cover" /> : <div className="w-10 h-10 bg-red-600 rounded-xl" />}
+          {directorIconUrl ? (
+            <img src={directorIconUrl} className="w-10 h-10 rounded-xl shadow-lg border border-white/10 object-cover" />
+          ) : (
+            <div className="w-10 h-10 bg-amber-950/60 rounded-xl border border-amber-500/30 flex items-center justify-center overflow-hidden">
+              <AkornMascot size={36} pose="director" />
+            </div>
+          )}
           <div className="h-5 w-[1px] bg-slate-700" />
           <div className="flex flex-col">
             <h1 className="font-bold text-xs tracking-widest text-slate-400 uppercase">{project.name}</h1>
